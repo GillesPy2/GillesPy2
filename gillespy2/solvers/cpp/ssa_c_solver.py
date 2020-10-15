@@ -35,7 +35,7 @@ def _write_constants(outfile, model, reactions, species, parameter_mappings, res
                 else:
                     populations.append(int(resume[species[i]][-1]))
             else:
-                populations.append(int(model.listOfSpecies(species[i]).initial_value))
+                populations.append(int(model.listOfSpecies[species[i]].initial_value))
 
         if not (resume is None):
             if isinstance(resume, np.ndarray):
@@ -63,8 +63,6 @@ def _write_constants(outfile, model, reactions, species, parameter_mappings, res
     """)
 
     outfile.write(code)
-
-    log.warn(code)
 
     # outfile.write("const double V = {};\n".format(model.volume))
     # outfile.write("std :: string s_names[] = {")
