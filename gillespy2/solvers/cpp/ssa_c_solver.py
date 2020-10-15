@@ -26,26 +26,56 @@ def _write_constants(outfile, model, reactions, species, parameter_mappings, res
     Else, it is defaulted to None.
     """
 
+    populations = []
+    if len(species) > 0:
+        for i in range(len(species) - 1): 
+            if not (resume is None):
+                if (isinstance(resume, np.ndarray)):
+                    populations.append(int(resume[0][-1][i + 1]))
+                else:
+                    populations.append(int(resume[species[i]][-1]))
+            else:
+                populations.append(int(model.listOfSpecies(species[i]).initial_value))
+
+        if not (resume is None):
+            if isinstance(resume, np.ndarray):
+                populations.append(int(resume[0][-1][-1]))
+            else:
+                populations.append(int(resume[species[-1]][-1]))
+        else:
+            populations.append(int(model.listOfSpecies[species[-1]].initial_value))
+
     from gillespy2.core import log
     from gillespy2.solvers.cpp.template_gen import TemplateGen
+
     gen = TemplateGen()
 
-    gen.register('volume', model.volume)
-    gen.register('species', species)
+    gen.register("volume", model.volume)
+    gen.register("species", species)
+    gen.register("populations", populations)
+    gen.register("reactions", reactions)
 
-    if len(species) < 0:
-        return
+    code = gen.generate("""
+    const double V = __volume__;
+    std :: string s_names[] = { __species__ };
+    unsigned int populations[] = { __populations__ };
+    std :: string r_names[] = { __reactions__ };
+    """)
 
-    for i in range(len(species) - 1):
+    outfile.write(code)
+
+    log.warn(code)
 
     # outfile.write("const double V = {};\n".format(model.volume))
     # outfile.write("std :: string s_names[] = {")
 
+
+    """
     if len(species) > 0:
         # Write model species names.
-        # for i in range(len(species)-1):
-            # outfile.write('"{}", '.format(species[i]))
-        # outfile.write('"{}"'.format(species[-1]))
+        for i in range(len(species)-1):
+            outfile.write('"{}", '.format(species[i]))
+        outfile.write('"{}"'.format(species[-1]))
         outfile.write("};\nunsigned int populations[] = {")
         # Write initial populations.
         for i in range(len(species)-1):
@@ -72,6 +102,8 @@ def _write_constants(outfile, model, reactions, species, parameter_mappings, res
             outfile.write('"{}", '.format(reactions[i]))
         outfile.write('"{}"'.format(reactions[-1]))
         outfile.write("};\n")
+
+    """
     for param in model.listOfParameters:
         outfile.write("const double {0} = {1};\n".format(parameter_mappings[param], model.listOfParameters[param].value))
 
