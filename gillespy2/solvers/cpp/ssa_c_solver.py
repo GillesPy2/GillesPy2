@@ -28,8 +28,10 @@ def _write_constants(outfile, model, reactions, species, parameter_mappings, res
 
     populations = []
     if len(species) > 0:
+        # Create initial populations.
         for i in range(len(species) - 1): 
             if not (resume is None):
+                # For resuming.
                 if (isinstance(resume, np.ndarray)):
                     populations.append(int(resume[0][-1][i + 1]))
                 else:
@@ -54,54 +56,19 @@ def _write_constants(outfile, model, reactions, species, parameter_mappings, res
     gen.register("species", species)
     gen.register("populations", populations)
     gen.register("reactions", reactions)
+    gen.register("parameters", iter(model.listOfParameters))
+    gen.register("parameter_mappings", parameter_mappings)
 
     code = gen.generate("""
-    const double V = __volume__;
-    std :: string s_names[] = { __species__ };
-    unsigned int populations[] = { __populations__ };
-    std :: string r_names[] = { __reactions__ };
+        const double V = __volume__;
+        std :: string s_names[] = { __species__ };
+        unsigned int populations[] = { __populations__ };
+        std :: string r_names[] = { __reactions__ };
+        $(parameters->param):const double >|parameter_mappings[param]|< = >|parameters[param].value|<
     """)
 
     outfile.write(code)
 
-    # outfile.write("const double V = {};\n".format(model.volume))
-    # outfile.write("std :: string s_names[] = {")
-
-
-    """
-    if len(species) > 0:
-        # Write model species names.
-        for i in range(len(species)-1):
-            outfile.write('"{}", '.format(species[i]))
-        outfile.write('"{}"'.format(species[-1]))
-        outfile.write("};\nunsigned int populations[] = {")
-        # Write initial populations.
-        for i in range(len(species)-1):
-            # If resuming
-            if not (resume is None):
-                if isinstance(resume, np.ndarray):
-                    outfile.write('{}, '.format(int(resume[0][-1][i+1])))
-                else:
-                    outfile.write('{}, '.format(int(resume[species[i]][-1])))
-            else:
-                outfile.write('{}, '.format(int(model.listOfSpecies[species[i]].initial_value)))
-        if not (resume is None):
-            if isinstance(resume, np.ndarray):
-                outfile.write('{}'.format(int(resume[0][-1][-1])))
-            else:
-                outfile.write('{}'.format(int(resume[species[-1]][-1])))
-        else:
-            outfile.write('{}'.format(int(model.listOfSpecies[species[-1]].initial_value)))
-        outfile.write("};\n")
-    if len(reactions) > 0:
-        # Write reaction names
-        outfile.write("std :: string r_names[] = {")
-        for i in range(len(reactions)-1):
-            outfile.write('"{}", '.format(reactions[i]))
-        outfile.write('"{}"'.format(reactions[-1]))
-        outfile.write("};\n")
-
-    """
     for param in model.listOfParameters:
         outfile.write("const double {0} = {1};\n".format(parameter_mappings[param], model.listOfParameters[param].value))
 
