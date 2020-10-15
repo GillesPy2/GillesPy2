@@ -19,11 +19,11 @@ class TemplateGen:
         if val_type is list:
             val_type = type(value[0])
 
-            if val_type is int:
-                return ', '.join(map(str, value))
-
             if val_type is str:
                 return '"{0}"'.format('", "'.join(value))
+
+            if val_type is int or float:
+                return ', '.join(map(str, value))
 
         if val_type is str:
             return '"{0}"'.format(value)

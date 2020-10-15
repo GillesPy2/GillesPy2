@@ -1,3 +1,4 @@
+from gillespy2.solvers.cpp.template_gen import TemplateGen
 import gillespy2
 from gillespy2.core import gillespyError, GillesPySolver, log
 from gillespy2.solvers.utilities import solverutils as cutils
@@ -25,13 +26,26 @@ def _write_constants(outfile, model, reactions, species, parameter_mappings, res
     Else, it is defaulted to None.
     """
 
-    outfile.write("const double V = {};\n".format(model.volume))
-    outfile.write("std :: string s_names[] = {")
+    from gillespy2.core import log
+    from gillespy2.solvers.cpp.template_gen import TemplateGen
+    gen = TemplateGen()
+
+    gen.register('volume', model.volume)
+    gen.register('species', species)
+
+    if len(species) < 0:
+        return
+
+    for i in range(len(species) - 1):
+
+    # outfile.write("const double V = {};\n".format(model.volume))
+    # outfile.write("std :: string s_names[] = {")
+
     if len(species) > 0:
         # Write model species names.
-        for i in range(len(species)-1):
-            outfile.write('"{}", '.format(species[i]))
-        outfile.write('"{}"'.format(species[-1]))
+        # for i in range(len(species)-1):
+            # outfile.write('"{}", '.format(species[i]))
+        # outfile.write('"{}"'.format(species[-1]))
         outfile.write("};\nunsigned int populations[] = {")
         # Write initial populations.
         for i in range(len(species)-1):
@@ -59,10 +73,7 @@ def _write_constants(outfile, model, reactions, species, parameter_mappings, res
         outfile.write('"{}"'.format(reactions[-1]))
         outfile.write("};\n")
     for param in model.listOfParameters:
-        outfile.write("const double {0} = {1};\n".format(parameter_mappings[param], model.listOfParameters[param].value)
-
-                      )
-
+        outfile.write("const double {0} = {1};\n".format(parameter_mappings[param], model.listOfParameters[param].value))
 
 class SSACSolver(GillesPySolver):
     name = "SSACSolver"
