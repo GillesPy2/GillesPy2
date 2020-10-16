@@ -44,13 +44,26 @@ def _write_propensity(outfile, model, species_mappings, parameter_mappings, reac
     :param reactions: Names of reactions
     :type reactions: str
     """
+
+    from gillespy2.solvers.cpp.template_gen import TemplateGen
+    gen = TemplateGen()
+
     for i in range(len(reactions)):
+        gen.register("i", i)
+        gen.register("prop_func", model.listOfReactions[reactions[i]].sanitized_propensity_function(species_mappings, parameter_mappings))
+
+        outfile.write(gen.generate("""
+            case __i__:
+                return &prop_func&;
+        """))
+
         # Write switch statement case for reaction
-        outfile.write("""
+        """
+        outfile.write(
         case {0}:
             return {1};
-        """.format(i, model.listOfReactions[reactions[i]].sanitized_propensity_function(species_mappings,
-                                                                                        parameter_mappings)))
+        .format(i, model.listOfReactions[reactions[i]].sanitized_propensity_function(species_mappings, parameter_mappings)
+        """
 
 
 def _write_reactions(outfile, model, reactions, species):
