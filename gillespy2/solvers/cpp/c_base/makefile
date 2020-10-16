@@ -16,6 +16,10 @@ UserSimulation.o:
 UserSimulation: $(OBJ) UserSimulation.o
 	$(CC) -o UserSimulation $(OBJ) UserSimulation.o $(SIMFLAGS)
 
+CompileSolvers:
+	$(CC) -c -o ssa.o ssa.cpp $(CFLAGS)
+	$(CC) -c -o model.o model.cpp $(CFLAGS)
+
 cleanSimulation:
 	rm -f UserSimulation
 
