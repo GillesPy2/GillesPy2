@@ -54,7 +54,7 @@ def _write_propensity(outfile, model, species_mappings, parameter_mappings, reac
 
         # Write switch statement case for reaction.
         outfile.write(gen.generate("""
-            case _i_:
+            case &i&:
                 return &prop_func&;
         """))
 
@@ -71,7 +71,7 @@ def _write_reactions(outfile, model, reactions, species):
                                                                                     )
             if change != 0:
                 gen.register_all(("i", i), ("j" , j), ("change", change))
-                outfile.write(gen.generate("model.reactions[&j&].species_change[&j&] = _change_;\n"))
+                outfile.write(gen.generate("model.reactions[&i&].species_change[&j&] = _change_;"))
 
     gen.deregister_all()
     for i in customrxns.keys():
@@ -81,7 +81,7 @@ def _write_reactions(outfile, model, reactions, species):
             if any(elem in customrxns[i] for elem in list(model.listOfReactions[reactions[j]].reactants)) or \
                     any(elem in customrxns[i] for elem in list(model.listOfReactions[reactions[j]].products)):
                 gen.register_all(("i", i), ("j", j))
-                outfile.write(gen.generate("model.reactions[&i&].affected_reactions.push_back(&j&);\n"))
+                outfile.write(gen.generate("model.reactions[&i&].affected_reactions.push_back(&j&);"))
 
 
 def _parse_binary_output(results_buffer, number_of_trajectories, number_timesteps, number_species, data, pause=False):
