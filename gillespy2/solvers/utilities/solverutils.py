@@ -3,6 +3,7 @@ import shutil  # for deleting/copying files
 import ast  # for dependency graphing
 import numpy as np
 from gillespy2.core import log, Species
+from gillespy2.solvers.cpp.template_gen import TemplateGen
 
 
 """
@@ -45,7 +46,6 @@ def _write_propensity(outfile, model, species_mappings, parameter_mappings, reac
     :type reactions: str
     """
 
-    from gillespy2.solvers.cpp.template_gen import TemplateGen
     gen = TemplateGen()
 
     for i in range(len(reactions)):
@@ -59,6 +59,7 @@ def _write_propensity(outfile, model, species_mappings, parameter_mappings, reac
         """))
 
 def _write_reactions(outfile, model, reactions, species):
+    gen = TemplateGen()
     customrxns = {}
     for i in range(len(reactions)):
         reaction = model.listOfReactions[reactions[i]]
@@ -69,15 +70,18 @@ def _write_reactions(outfile, model, reactions, species):
                                                                                     (model.listOfSpecies[species[j]], 0)
                                                                                     )
             if change != 0:
-                outfile.write("model.reactions[{0}].species_change[{1}] = {2};\n".format(i, j, change))
+                gen.register_all(("i", i), ("j" , j), ("change", change))
+                outfile.write(gen.generate("model.reactions[&j&].species_change[&j&] = _change_;\n"))
 
+    gen.deregister_all()
     for i in customrxns.keys():
         for j in range(len(reactions)):
             if i == j:
                 continue
             if any(elem in customrxns[i] for elem in list(model.listOfReactions[reactions[j]].reactants)) or \
                     any(elem in customrxns[i] for elem in list(model.listOfReactions[reactions[j]].products)):
-                outfile.write("model.reactions[{0}].affected_reactions.push_back({1});\n".format(i, j))
+                gen.register_all(("i", i), ("j", j))
+                outfile.write(gen.generate("model.reactions[&i&].affected_reactions.push_back(&j&);\n"))
 
 
 def _parse_binary_output(results_buffer, number_of_trajectories, number_timesteps, number_species, data, pause=False):

@@ -3,6 +3,13 @@ class TemplateGen:
 
     def register(self, name, value):
         self.properties[name] = value
+    
+    def register_all(self, *args):
+        for arg in args:
+            if type(arg) != tuple:
+                continue
+
+            self.register(arg[0], arg[1])
 
     def deregister_all(self):
         self.properties = {}
