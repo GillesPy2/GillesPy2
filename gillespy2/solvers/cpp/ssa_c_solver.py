@@ -60,10 +60,10 @@ def _write_constants(outfile, model, reactions, species, parameter_mappings, res
     gen.register("parameter_mappings", parameter_mappings)
 
     code = gen.generate("""
-        const double V = __volume__;
-        std :: string s_names[] = { __species__ };
-        unsigned int populations[] = { __populations__ };
-        std :: string r_names[] = { __reactions__ };
+        const double V = _volume_;
+        std :: string s_names[] = { _species_ };
+        unsigned int populations[] = { _populations_ };
+        std :: string r_names[] = { _reactions_ };
     """)
 
     outfile.write(code)
@@ -73,7 +73,7 @@ def _write_constants(outfile, model, reactions, species, parameter_mappings, res
         gen.register("param_map_val", parameter_mappings[param])
         gen.register("param_val", model.listOfParameters[param].value)
 
-        outfile.write(gen.generate("const double &param_map_val& = __param_val__;"))
+        outfile.write(gen.generate("const double &param_map_val& = _param_val_;"))
 
 class SSACSolver(GillesPySolver):
     name = "SSACSolver"

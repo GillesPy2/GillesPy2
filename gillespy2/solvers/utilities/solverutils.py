@@ -52,19 +52,11 @@ def _write_propensity(outfile, model, species_mappings, parameter_mappings, reac
         gen.register("i", i)
         gen.register("prop_func", model.listOfReactions[reactions[i]].sanitized_propensity_function(species_mappings, parameter_mappings))
 
+        # Write switch statement case for reaction.
         outfile.write(gen.generate("""
-            case __i__:
+            case _i_:
                 return &prop_func&;
         """))
-
-        # Write switch statement case for reaction
-        """
-        outfile.write(
-        case {0}:
-            return {1};
-        .format(i, model.listOfReactions[reactions[i]].sanitized_propensity_function(species_mappings, parameter_mappings)
-        """
-
 
 def _write_reactions(outfile, model, reactions, species):
     customrxns = {}

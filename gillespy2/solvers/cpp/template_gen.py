@@ -12,7 +12,7 @@ class TemplateGen:
             prop_val = self.properties[prop]
 
             template = template.replace('&{}&'.format(prop), self.__format_prop(prop_val))
-            template = template.replace('__{}__'.format(prop), self.__format_val(prop_val))
+            template = template.replace('_{}_'.format(prop), self.__format_val(prop_val))
 
         return template
 
