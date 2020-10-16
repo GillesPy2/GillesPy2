@@ -47,7 +47,6 @@ def _write_constants(outfile, model, reactions, species, parameter_mappings, res
         else:
             populations.append(int(model.listOfSpecies[species[-1]].initial_value))
 
-    from gillespy2.core import log
     from gillespy2.solvers.cpp.template_gen import TemplateGen
 
     gen = TemplateGen()
@@ -60,10 +59,10 @@ def _write_constants(outfile, model, reactions, species, parameter_mappings, res
     gen.register("parameter_mappings", parameter_mappings)
 
     code = gen.generate("""
-        const double V = _volume_;
-        std :: string s_names[] = { _species_ };
-        unsigned int populations[] = { _populations_ };
-        std :: string r_names[] = { _reactions_ };
+    const double V = _volume_;
+    std :: string s_names[] = { _species_ };
+    unsigned int populations[] = { _populations_ };
+    std :: string r_names[] = { _reactions_ };
     """)
 
     outfile.write(code)
