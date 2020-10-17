@@ -11,7 +11,7 @@ GILLESPY_DIR = os.path.dirname(inspect.getfile(gillespy2))
 GILLESPY_C_DIR = os.path.join(GILLESPY_DIR, 'solvers/cpp/c_base')
 MAKE_FILE = os.path.dirname(os.path.abspath(__file__))+'/c_base/makefile'
 
-CACHE_DIR = os.path.join(GILLESPY_DIR, 'build_cache/')
+CACHE_DIR = os.path.join(GILLESPY_DIR, 'solvers/cpp/build_cache/')
 CACHE_FILES = ["ssa.o", "model.o"]
 
 class CPPCompiler():
@@ -21,7 +21,7 @@ class CPPCompiler():
 
         if rebuild_cache or not self.cache_exists() :
             log.warning("Simulation cache does not exist, recompiling...")
-            self.compile_cache()
+            self.build_cache()
 
         # Link the cache files with the new build directory.
         for file in CACHE_FILES:
