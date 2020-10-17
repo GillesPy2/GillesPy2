@@ -13,14 +13,14 @@ all: UserSimulation
 UserSimulation.o:
 	$(CC) -c -o UserSimulation.o UserSimulation.cpp $(CFLAGS)
 
-UserSimulation: $(OBJ) UserSimulation.o
-	$(CC) -o UserSimulation $(OBJ) UserSimulation.o $(SIMFLAGS)
-
 model.o:
 	$(CC) -c -o model.o model.cpp $(CFLAGS)
 
 ssa.o:
 	$(CC) -c -o ssa.o ssa.cpp $(CFLAGS)
+
+UserSimulation: $(OBJ) UserSimulation.o
+	$(CC) -o UserSimulation $(OBJ) UserSimulation.o $(SIMFLAGS)
 
 assembleSolvers: $(OBJ)
 
